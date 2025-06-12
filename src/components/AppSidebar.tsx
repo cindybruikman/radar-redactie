@@ -44,7 +44,7 @@ const toolsItems = [
   },
   {
     title: 'Bronnen Beheer',
-    url: '#',
+    url: '/bronnen-beheer',
     icon: Users,
   },
   {

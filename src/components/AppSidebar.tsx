@@ -16,12 +16,12 @@ import {
 const navigationItems = [
   {
     title: 'Dashboard',
-    url: '#',
+    url: '/',
     icon: Home,
   },
   {
     title: 'Agenda',
-    url: '#',
+    url: '/agenda',
     icon: Calendar,
   },
   {

@@ -1,10 +1,9 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Clock, MapPin, Users, FileText, ArrowRight, Bookmark } from 'lucide-react';
+import { Layout } from '@/components/Layout';
 
 const upcomingMeetings = [
   {
@@ -103,14 +102,8 @@ const Agenda = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <Layout title="Agenda Scanner" subtitle="Overzicht van gemeenteraad vergaderingen en belangrijke agendapunten">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Agenda Scanner</h1>
-          <p className="text-gray-600">Overzicht van gemeenteraad vergaderingen en belangrijke agendapunten</p>
-        </div>
-
         {/* Meeting Selection */}
         <Card>
           <CardHeader>
@@ -164,46 +157,22 @@ const Agenda = () => {
         <Card>
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-2">
-              <Button
-                variant={filter === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilter('all')}
-              >
+              <Button variant={filter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('all')}>
                 Alle items
               </Button>
-              <Button
-                variant={filter === 'high-priority' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilter('high-priority')}
-              >
+              <Button variant={filter === 'high-priority' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('high-priority')}>
                 Hoge prioriteit
               </Button>
-              <Button
-                variant={filter === 'news-relevant' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilter('news-relevant')}
-              >
+              <Button variant={filter === 'news-relevant' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('news-relevant')}>
                 Nieuwswaardig
               </Button>
-              <Button
-                variant={filter === 'jeugdbeleid' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilter('jeugdbeleid')}
-              >
+              <Button variant={filter === 'jeugdbeleid' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('jeugdbeleid')}>
                 Jeugdbeleid
               </Button>
-              <Button
-                variant={filter === 'verkeer' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilter('verkeer')}
-              >
+              <Button variant={filter === 'verkeer' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('verkeer')}>
                 Verkeer
               </Button>
-              <Button
-                variant={filter === 'woningbouw' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilter('woningbouw')}
-              >
+              <Button variant={filter === 'woningbouw' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('woningbouw')}>
                 Woningbouw
               </Button>
             </div>
@@ -308,7 +277,7 @@ const Agenda = () => {
           </Card>
         )}
       </div>
-    </div>
+    </Layout>
   );
 };
 

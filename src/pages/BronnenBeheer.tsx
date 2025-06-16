@@ -23,8 +23,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Globe, Plus, Settings, AlertCircle, CheckCircle } from "lucide-react";
+import {
+  Globe,
+  Plus,
+  Settings,
+  AlertCircle,
+  CheckCircle,
+  Trash2,
+} from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { scrapeWebsite } from "@/lib/scraper";
 
 interface Source {
   id: string;
@@ -42,6 +50,7 @@ const BronnenBeheer = () => {
   const [newSourceDialogOpen, setNewSourceDialogOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newUrl, setNewUrl] = useState("");
+  const [editSource, setEditSource] = useState<Source | null>(null);
 
   useEffect(() => {
     const fetchSources = async () => {
@@ -52,6 +61,51 @@ const BronnenBeheer = () => {
 
     fetchSources();
   }, []);
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("sources").delete().eq("id", id);
+    if (!error) {
+      setSources((prev) => prev.filter((s) => s.id !== id));
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!editSource) return;
+    const { id, ...updateData } = editSource;
+    const { data, error } = await supabase
+      .from("sources")
+      .update(updateData)
+      .eq("id", id)
+      .select();
+
+    if (!error && data) {
+      setSources((prev) => prev.map((s) => (s.id === id ? data[0] : s)));
+      setEditSource(null);
+    }
+  };
+
+  const handleAdd = async () => {
+    if (!newName || !newUrl) return;
+    const { data, error } = await supabase
+      .from("sources")
+      .insert([
+        {
+          name: newName,
+          url: newUrl,
+          type: "website",
+          status: "active",
+          priority: "medium",
+        },
+      ])
+      .select();
+
+    if (!error && data) {
+      setSources((prev) => [...prev, ...(data ?? [])]);
+      setNewName("");
+      setNewUrl("");
+      setNewSourceDialogOpen(false);
+    }
+  };
 
   const getStatusIcon = (status: Source["status"]) => {
     switch (status) {
@@ -71,15 +125,7 @@ const BronnenBeheer = () => {
       error: "bg-red-100 text-red-800",
     };
 
-    return (
-      <Badge className={variants[status]}>
-        {status === "active"
-          ? "Actief"
-          : status === "inactive"
-          ? "Inactief"
-          : "Fout"}
-      </Badge>
-    );
+    return <Badge className={variants[status]}>{status}</Badge>;
   };
 
   const getPriorityBadge = (priority: Source["priority"]) => {
@@ -89,15 +135,7 @@ const BronnenBeheer = () => {
       low: "bg-green-100 text-green-800",
     };
 
-    return (
-      <Badge className={variants[priority]}>
-        {priority === "high"
-          ? "Hoog"
-          : priority === "medium"
-          ? "Gemiddeld"
-          : "Laag"}
-      </Badge>
-    );
+    return <Badge className={variants[priority]}>{priority}</Badge>;
   };
 
   const getTypeLabel = (type: Source["type"]) => {
@@ -117,144 +155,53 @@ const BronnenBeheer = () => {
       subtitle="Beheer en configureer nieuwsbronnen voor RadarRedactie"
     >
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex justify-end">
-          <Dialog
-            open={newSourceDialogOpen}
-            onOpenChange={setNewSourceDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Nieuwe Bron
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Nieuwe Bron Toevoegen</DialogTitle>
-                <DialogDescription>
-                  Voeg een nieuwe nieuwsbron toe aan het systeem.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Naam
-                  </Label>
-                  <Input
-                    id="name"
-                    className="col-span-3"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="url" className="text-right">
-                    URL
-                  </Label>
-                  <Input
-                    id="url"
-                    className="col-span-3"
-                    value={newUrl}
-                    onChange={(e) => setNewUrl(e.target.value)}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  onClick={async () => {
-                    if (!newName || !newUrl) return;
-
-                    const { data, error } = await supabase
-                      .from("sources")
-                      .insert([
-                        {
-                          name: newName,
-                          url: newUrl,
-                          type: "website",
-                          status: "active",
-                          priority: "medium",
-                        },
-                      ])
-                      .select();
-
-                    if (error) {
-                      console.error("Fout bij toevoegen:", error);
-                    } else {
-                      setSources((prev) => [...prev, ...(data ?? [])]);
-                      setNewName("");
-                      setNewUrl("");
-                      setNewSourceDialogOpen(false);
-                    }
-                  }}
-                >
-                  Toevoegen
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Totaal Bronnen
-              </CardTitle>
-              <Globe className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{sources.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Actieve Bronnen
-              </CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {sources.filter((s) => s.status === "active").length}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Signalen Vandaag
-              </CardTitle>
-              <Settings className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {sources.reduce((sum, source) => sum + (Number(source.signalsFound) || 0), 0)}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Fouten</CardTitle>
-              <AlertCircle className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">
-                {sources.filter((s) => s.status === "error").length}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Sources Table */}
         <Card>
           <CardHeader>
             <CardTitle>Nieuwsbronnen</CardTitle>
           </CardHeader>
+
           <CardContent>
+            <div className="flex justify-end mb-4">
+              <Dialog
+                open={newSourceDialogOpen}
+                onOpenChange={setNewSourceDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button className="flex items-center gap-2">
+                    <Plus className="w-4 h-4" /> Nieuwe Bron
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Nieuwe Bron Toevoegen</DialogTitle>
+                    <DialogDescription>
+                      Voeg een nieuwe nieuwsbron toe.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label className="text-right">Naam</Label>
+                      <Input
+                        className="col-span-3"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label className="text-right">URL</Label>
+                      <Input
+                        className="col-span-3"
+                        value={newUrl}
+                        onChange={(e) => setNewUrl(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={handleAdd}>Toevoegen</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -277,12 +224,8 @@ const BronnenBeheer = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div>
-                        <div className="font-medium">{source.name}</div>
-                        <div className="text-sm text-gray-500">
-                          {source.url}
-                        </div>
-                      </div>
+                      <div className="font-medium">{source.name}</div>
+                      <div className="text-sm text-gray-500">{source.url}</div>
                     </TableCell>
                     <TableCell>{getTypeLabel(source.type)}</TableCell>
                     <TableCell>{getPriorityBadge(source.priority)}</TableCell>
@@ -293,8 +236,40 @@ const BronnenBeheer = () => {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Switch defaultChecked={source.status === "active"} />
-                        <Button variant="ghost" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            const result = await scrapeWebsite(source.url);
+                            console.log("SCRAPE RESULT:", result);
+
+                            if (result.success) {
+                              await supabase.from("signals").insert([
+                                {
+                                  source_id: source.id,
+                                  title: result.headlines[0] ?? "Geen titel gevonden",
+                                  content: result.paragraphs.join(" ").slice(0, 500),
+                                  url: source.url,
+                                },
+                              ]);
+                            }
+                          }}
+                        >
+                          Scan
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditSource(source)}
+                        >
                           <Settings className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(source.id)}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600" />
                         </Button>
                       </div>
                     </TableCell>

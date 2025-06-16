@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -125,23 +120,39 @@ const BronnenBeheer = () => {
         <Card>
           <CardHeader className="flex justify-between">
             <CardTitle>Nieuwsbronnen</CardTitle>
-            <Dialog open={newSourceDialogOpen} onOpenChange={setNewSourceDialogOpen}>
+            <Dialog
+              open={newSourceDialogOpen}
+              onOpenChange={setNewSourceDialogOpen}
+            >
               <DialogTrigger asChild>
-                <Button><Plus className="w-4 h-4 mr-2" />Nieuwe Bron</Button>
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nieuwe Bron
+                </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                   <DialogTitle>Nieuwe Bron</DialogTitle>
-                  <DialogDescription>Voeg een nieuwe bron toe.</DialogDescription>
+                  <DialogDescription>
+                    Voeg een nieuwe bron toe.
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label className="text-right">Naam</Label>
-                    <Input className="col-span-3" value={newName} onChange={(e) => setNewName(e.target.value)} />
+                    <Input
+                      className="col-span-3"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                    />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label className="text-right">URL</Label>
-                    <Input className="col-span-3" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} />
+                    <Input
+                      className="col-span-3"
+                      value={newUrl}
+                      onChange={(e) => setNewUrl(e.target.value)}
+                    />
                   </div>
                 </div>
                 <DialogFooter>
@@ -176,10 +187,18 @@ const BronnenBeheer = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => handleScan(source)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleScan(source)}
+                        >
                           Scan
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDelete(source.id)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(source.id)}
+                        >
                           <Trash2 className="w-4 h-4 text-red-600" />
                         </Button>
                       </div>

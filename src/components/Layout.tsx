@@ -15,13 +15,14 @@ export const Layout = ({ title, subtitle, children }: LayoutProps) => {
       <div className="min-h-screen flex bg-gray-50">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="border-b bg-white px-6 py-4 flex items-center justify-between">
+          <header className="border-b bg-white px-6 py-4 flex items-center gap-4">
+            <SidebarTrigger />
             <div>
               <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
               {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
             </div>
-            <SidebarTrigger />
           </header>
+
           <main className="flex-1 p-6">{children}</main>
         </div>
       </div>

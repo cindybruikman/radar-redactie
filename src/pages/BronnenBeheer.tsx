@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Layout } from "@/components/Layout";
 import {
   Table,
   TableBody,
@@ -32,6 +36,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 
 interface Source {
   id: string;
@@ -96,6 +102,12 @@ const BronnenBeheer = () => {
           source_id: source.id,
         }),
       });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText);
+      }
+
       const result = await res.json();
       console.log("Scrape result:", result);
     } catch (err) {
@@ -115,102 +127,125 @@ const BronnenBeheer = () => {
   };
 
   return (
-    <Layout title="Bronnen Beheer" subtitle="Beheer en scan je nieuwsbronnen">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <Card>
-          <CardHeader className="flex justify-between">
-            <CardTitle>Nieuwsbronnen</CardTitle>
-            <Dialog
-              open={newSourceDialogOpen}
-              onOpenChange={setNewSourceDialogOpen}
-            >
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Nieuwe Bron
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Nieuwe Bron</DialogTitle>
-                  <DialogDescription>
-                    Voeg een nieuwe bron toe.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Naam</Label>
-                    <Input
-                      className="col-span-3"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">URL</Label>
-                    <Input
-                      className="col-span-3"
-                      value={newUrl}
-                      onChange={(e) => setNewUrl(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button onClick={handleAdd}>Toevoegen</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </CardHeader>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gray-50">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <header className="border-b bg-white px-6 py-4">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger />
+              <div>
+                <h1 className="text-2xl font-semibold text-gray-900">
+                  Bronnen Beheer
+                </h1>
+                <p className="text-sm text-gray-600">
+                  Beheer en configureer nieuwsbronnen
+                </p>
+              </div>
+            </div>
+          </header>
 
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Naam</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Signalen</TableHead>
-                  <TableHead>Acties</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sources.map((source) => (
-                  <TableRow key={source.id}>
-                    <TableCell className="flex items-center gap-2">
-                      {getStatusIcon(source.status)}
-                      <Badge variant="secondary">{source.status}</Badge>
-                    </TableCell>
-                    <TableCell>{source.name}</TableCell>
-                    <TableCell>{source.type}</TableCell>
-                    <TableCell>
-                      <Badge>{source.signalsFound ?? 0}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleScan(source)}
-                        >
-                          Scan
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(source.id)}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                        </Button>
+          {/* Main Content */}
+          <main className="flex-1 p-6">
+            <div className="max-w-7xl mx-auto space-y-6">
+              <Card>
+                <CardHeader className="flex justify-between">
+                  <CardTitle>Nieuwsbronnen</CardTitle>
+                  <Dialog
+                    open={newSourceDialogOpen}
+                    onOpenChange={setNewSourceDialogOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Nieuwe Bron
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Nieuwe Bron</DialogTitle>
+                        <DialogDescription>
+                          Voeg een nieuwe bron toe.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label className="text-right">Naam</Label>
+                          <Input
+                            className="col-span-3"
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                          />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label className="text-right">URL</Label>
+                          <Input
+                            className="col-span-3"
+                            value={newUrl}
+                            onChange={(e) => setNewUrl(e.target.value)}
+                          />
+                        </div>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                      <DialogFooter>
+                        <Button onClick={handleAdd}>Toevoegen</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </CardHeader>
+
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Naam</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Signalen</TableHead>
+                        <TableHead>Acties</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sources.map((source) => (
+                        <TableRow key={source.id}>
+                          <TableCell className="flex items-center gap-2">
+                            {getStatusIcon(source.status)}
+                            <Badge variant="secondary">{source.status}</Badge>
+                          </TableCell>
+                          <TableCell>{source.name}</TableCell>
+                          <TableCell>{source.type}</TableCell>
+                          <TableCell>
+                            <Badge>{source.signalsFound ?? 0}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleScan(source)}
+                              >
+                                Scan
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete(source.id)}
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </main>
+        </div>
       </div>
-    </Layout>
+    </SidebarProvider>
   );
 };
 

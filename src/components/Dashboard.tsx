@@ -27,6 +27,15 @@ export const Dashboard = () => {
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [signals, setSignals] = useState<Signal[]>([]);
 
+  const extractDomain = (url: string): string => {
+    try {
+      const { hostname } = new URL(url);
+      return hostname.replace("www.", "");
+    } catch {
+      return "Onbekend";
+    }
+  };
+
   useEffect(() => {
     const fetchSignals = async () => {
       const { data, error } = await supabase.from("signals").select("*");
@@ -37,14 +46,15 @@ export const Dashboard = () => {
         const mapped: Signal[] = data.map((item) => ({
           id: item.id,
           title: item.title ?? "Geen titel",
-          source: item.source_name ?? "Onbekend",
+          source: item.source_name ?? extractDomain(item.url),
           neighborhood: item.neighborhood ?? "Onbekend",
           topic: item.topic ?? "Algemeen",
-          time: "1 uur geleden", // evt. formatteren met date-fns
+          time: "1 uur geleden",
           content: item.content ?? "",
           priority: item.priority ?? "medium",
           status: item.status ?? "new",
         }));
+
         setSignals(mapped);
       }
     };
@@ -118,7 +128,11 @@ export const Dashboard = () => {
                     <h2 className="text-xl font-semibold text-gray-900">
                       Dagelijkse Signalen Feed
                     </h2>
-                    <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.location.reload()}
+                    >
                       Ververs
                     </Button>
                   </div>

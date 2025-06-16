@@ -1,0 +1,105 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Centrum",
+        "id": "centrum"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [5.0919, 51.5606],
+            [5.095, 51.562],
+            [5.098, 51.561],
+            [5.097, 51.559],
+            [5.094, 51.558],
+            [5.0919, 51.5606]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Noord",
+        "id": "noord"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [5.1, 51.58],
+            [5.105, 51.582],
+            [5.108, 51.581],
+            [5.107, 51.579],
+            [5.104, 51.578],
+            [5.1, 51.58]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "West",
+        "id": "west"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [5.07, 51.56],
+            [5.075, 51.562],
+            [5.078, 51.561],
+            [5.077, 51.559],
+            [5.074, 51.558],
+            [5.07, 51.56]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Oost",
+        "id": "oost"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [5.11, 51.56],
+            [5.115, 51.562],
+            [5.118, 51.561],
+            [5.117, 51.559],
+            [5.114, 51.558],
+            [5.11, 51.56]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Zuid",
+        "id": "zuid"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [5.0919, 51.54],
+            [5.095, 51.542],
+            [5.098, 51.541],
+            [5.097, 51.539],
+            [5.094, 51.538],
+            [5.0919, 51.54]
+          ]
+        ]
+      }
+    }
+  ]
+}

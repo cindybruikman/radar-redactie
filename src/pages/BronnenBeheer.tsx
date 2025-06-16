@@ -120,95 +120,37 @@ const BronnenBeheer = () => {
   };
 
   return (
-    <Layout title="Bronnen Beheer" subtitle="Beheer en configureer nieuwsbronnen voor RadarRedactie">
+    <Layout title="Bronnen Beheer" subtitle="Beheer en scan je nieuwsbronnen">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Dialog Header */}
-        <div className="flex justify-end">
-          <Dialog open={newSourceDialogOpen} onOpenChange={setNewSourceDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Nieuwe Bron
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Nieuwe Bron Toevoegen</DialogTitle>
-                <DialogDescription>
-                  Voeg een nieuwe nieuwsbron toe aan het systeem.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">Naam</Label>
-                  <Input id="name" className="col-span-3" />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="url" className="text-right">URL</Label>
-                  <Input id="url" className="col-span-3" />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Toevoegen</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Totaal Bronnen</CardTitle>
-              <Globe className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{sources.length}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Actieve Bronnen</CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {sources.filter(s => s.status === 'active').length}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Signalen Vandaag</CardTitle>
-              <Settings className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {sources.reduce((sum, source) => sum + source.signalsFound, 0)}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Fouten</CardTitle>
-              <AlertCircle className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">
-                {sources.filter(s => s.status === 'error').length}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Sources Table */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex justify-between">
             <CardTitle>Nieuwsbronnen</CardTitle>
+            <Dialog open={newSourceDialogOpen} onOpenChange={setNewSourceDialogOpen}>
+              <DialogTrigger asChild>
+                <Button><Plus className="w-4 h-4 mr-2" />Nieuwe Bron</Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Nieuwe Bron</DialogTitle>
+                  <DialogDescription>Voeg een nieuwe bron toe.</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right">Naam</Label>
+                    <Input className="col-span-3" value={newName} onChange={(e) => setNewName(e.target.value)} />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right">URL</Label>
+                    <Input className="col-span-3" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button onClick={handleAdd}>Toevoegen</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </CardHeader>
+
           <CardContent>
             <Table>
               <TableHeader>
@@ -216,8 +158,6 @@ const BronnenBeheer = () => {
                   <TableHead>Status</TableHead>
                   <TableHead>Naam</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Prioriteit</TableHead>
-                  <TableHead>Laatste Scan</TableHead>
                   <TableHead>Signalen</TableHead>
                   <TableHead>Acties</TableHead>
                 </TableRow>
@@ -225,29 +165,22 @@ const BronnenBeheer = () => {
               <TableBody>
                 {sources.map((source) => (
                   <TableRow key={source.id}>
+                    <TableCell className="flex items-center gap-2">
+                      {getStatusIcon(source.status)}
+                      <Badge variant="secondary">{source.status}</Badge>
+                    </TableCell>
+                    <TableCell>{source.name}</TableCell>
+                    <TableCell>{source.type}</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(source.status)}
-                        {getStatusBadge(source.status)}
-                      </div>
+                      <Badge>{source.signalsFound ?? 0}</Badge>
                     </TableCell>
                     <TableCell>
-                      <div>
-                        <div className="font-medium">{source.name}</div>
-                        <div className="text-sm text-gray-500">{source.url}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{getTypeLabel(source.type)}</TableCell>
-                    <TableCell>{getPriorityBadge(source.priority)}</TableCell>
-                    <TableCell>{source.lastScanned}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{source.signalsFound}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Switch defaultChecked={source.status === 'active'} />
-                        <Button variant="ghost" size="sm">
-                          <Settings className="w-4 h-4" />
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleScan(source)}>
+                          Scan
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(source.id)}>
+                          <Trash2 className="w-4 h-4 text-red-600" />
                         </Button>
                       </div>
                     </TableCell>

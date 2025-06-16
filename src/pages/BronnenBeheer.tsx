@@ -240,15 +240,33 @@ const BronnenBeheer = () => {
                           variant="outline"
                           size="sm"
                           onClick={async () => {
-                            const result = await scrapeWebsite(source.url);
-                            console.log("SCRAPE RESULT:", result);
+                            const res = await fetch("/api/scrape", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                url: source.url,
+                                source_id: source.id,
+                              }),
+                            });
 
-                            if (result.success) {
+                            const data = await res.json();
+                            console.log("Scrape result:", data);
+
+                            // Opslaan in Supabase, indien succesvol
+                            if (
+                              data.success &&
+                              data.headlines &&
+                              data.paragraphs
+                            ) {
                               await supabase.from("signals").insert([
                                 {
                                   source_id: source.id,
-                                  title: result.headlines[0] ?? "Geen titel gevonden",
-                                  content: result.paragraphs.join(" ").slice(0, 500),
+                                  title:
+                                    data.headlines[0]?.trim() ??
+                                    "Geen titel gevonden",
+                                  content: data.paragraphs
+                                    .join(" ")
+                                    .slice(0, 500),
                                   url: source.url,
                                 },
                               ]);
@@ -257,6 +275,7 @@ const BronnenBeheer = () => {
                         >
                           Scan
                         </Button>
+
                         <Button
                           variant="ghost"
                           size="sm"

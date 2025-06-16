@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -32,7 +37,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
-import { scrapeWebsite } from "@/lib/scraper";
 
 interface Source {
   id: string;
@@ -40,7 +44,7 @@ interface Source {
   type: "website" | "forum" | "social" | "official" | "rss";
   url: string;
   status: "active" | "inactive" | "error";
-  lastScanned: string;
+  lastScanned?: string;
   signalsFound: number;
   priority: "high" | "medium" | "low";
 }
@@ -50,38 +54,18 @@ const BronnenBeheer = () => {
   const [newSourceDialogOpen, setNewSourceDialogOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newUrl, setNewUrl] = useState("");
-  const [editSource, setEditSource] = useState<Source | null>(null);
 
   useEffect(() => {
     const fetchSources = async () => {
       const { data, error } = await supabase.from("sources").select("*");
-      if (error) console.error(error);
-      else setSources(data);
+      if (!error && data) setSources(data);
     };
-
     fetchSources();
   }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("sources").delete().eq("id", id);
-    if (!error) {
-      setSources((prev) => prev.filter((s) => s.id !== id));
-    }
-  };
-
-  const handleUpdate = async () => {
-    if (!editSource) return;
-    const { id, ...updateData } = editSource;
-    const { data, error } = await supabase
-      .from("sources")
-      .update(updateData)
-      .eq("id", id)
-      .select();
-
-    if (!error && data) {
-      setSources((prev) => prev.map((s) => (s.id === id ? data[0] : s)));
-      setEditSource(null);
-    }
+    if (!error) setSources((prev) => prev.filter((s) => s.id !== id));
   };
 
   const handleAdd = async () => {
@@ -95,15 +79,32 @@ const BronnenBeheer = () => {
           type: "website",
           status: "active",
           priority: "medium",
+          signalsFound: 0,
         },
       ])
       .select();
-
     if (!error && data) {
-      setSources((prev) => [...prev, ...(data ?? [])]);
+      setSources((prev) => [...prev, ...data]);
       setNewName("");
       setNewUrl("");
       setNewSourceDialogOpen(false);
+    }
+  };
+
+  const handleScan = async (source: Source) => {
+    try {
+      const res = await fetch("/api/scrape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: source.url,
+          source_id: source.id,
+        }),
+      });
+      const result = await res.json();
+      console.log("Scrape result:", result);
+    } catch (err) {
+      console.error("Scrape error:", err);
     }
   };
 
@@ -118,98 +119,45 @@ const BronnenBeheer = () => {
     }
   };
 
-  const getStatusBadge = (status: Source["status"]) => {
-    const variants = {
-      active: "bg-green-100 text-green-800",
-      inactive: "bg-gray-100 text-gray-800",
-      error: "bg-red-100 text-red-800",
-    };
-
-    return <Badge className={variants[status]}>{status}</Badge>;
-  };
-
-  const getPriorityBadge = (priority: Source["priority"]) => {
-    const variants = {
-      high: "bg-red-100 text-red-800",
-      medium: "bg-yellow-100 text-yellow-800",
-      low: "bg-green-100 text-green-800",
-    };
-
-    return <Badge className={variants[priority]}>{priority}</Badge>;
-  };
-
-  const getTypeLabel = (type: Source["type"]) => {
-    const labels = {
-      website: "Website",
-      forum: "Forum",
-      social: "Sociaal",
-      official: "Officieel",
-      rss: "RSS Feed",
-    };
-    return labels[type];
-  };
-
   return (
-    <Layout
-      title="Bronnen Beheer"
-      subtitle="Beheer en configureer nieuwsbronnen voor RadarRedactie"
-    >
+    <Layout title="Bronnen Beheer" subtitle="Beheer en scan je nieuwsbronnen">
       <div className="max-w-7xl mx-auto space-y-6">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex justify-between">
             <CardTitle>Nieuwsbronnen</CardTitle>
+            <Dialog open={newSourceDialogOpen} onOpenChange={setNewSourceDialogOpen}>
+              <DialogTrigger asChild>
+                <Button><Plus className="w-4 h-4 mr-2" />Nieuwe Bron</Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Nieuwe Bron</DialogTitle>
+                  <DialogDescription>Voeg een nieuwe bron toe.</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right">Naam</Label>
+                    <Input className="col-span-3" value={newName} onChange={(e) => setNewName(e.target.value)} />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right">URL</Label>
+                    <Input className="col-span-3" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button onClick={handleAdd}>Toevoegen</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </CardHeader>
 
           <CardContent>
-            <div className="flex justify-end mb-4">
-              <Dialog
-                open={newSourceDialogOpen}
-                onOpenChange={setNewSourceDialogOpen}
-              >
-                <DialogTrigger asChild>
-                  <Button className="flex items-center gap-2">
-                    <Plus className="w-4 h-4" /> Nieuwe Bron
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Nieuwe Bron Toevoegen</DialogTitle>
-                    <DialogDescription>
-                      Voeg een nieuwe nieuwsbron toe.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label className="text-right">Naam</Label>
-                      <Input
-                        className="col-span-3"
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label className="text-right">URL</Label>
-                      <Input
-                        className="col-span-3"
-                        value={newUrl}
-                        onChange={(e) => setNewUrl(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button onClick={handleAdd}>Toevoegen</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Status</TableHead>
                   <TableHead>Naam</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Prioriteit</TableHead>
-                  <TableHead>Laatste Scan</TableHead>
                   <TableHead>Signalen</TableHead>
                   <TableHead>Acties</TableHead>
                 </TableRow>
@@ -217,58 +165,21 @@ const BronnenBeheer = () => {
               <TableBody>
                 {sources.map((source) => (
                   <TableRow key={source.id}>
+                    <TableCell className="flex items-center gap-2">
+                      {getStatusIcon(source.status)}
+                      <Badge variant="secondary">{source.status}</Badge>
+                    </TableCell>
+                    <TableCell>{source.name}</TableCell>
+                    <TableCell>{source.type}</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(source.status)}
-                        {getStatusBadge(source.status)}
-                      </div>
+                      <Badge>{source.signalsFound ?? 0}</Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{source.name}</div>
-                      <div className="text-sm text-gray-500">{source.url}</div>
-                    </TableCell>
-                    <TableCell>{getTypeLabel(source.type)}</TableCell>
-                    <TableCell>{getPriorityBadge(source.priority)}</TableCell>
-                    <TableCell>{source.lastScanned}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{source.signalsFound}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Switch defaultChecked={source.status === "active"} />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={async () => {
-                            const result = await scrapeWebsite(source.url);
-                            console.log("SCRAPE RESULT:", result);
-
-                            if (result.success) {
-                              await supabase.from("signals").insert([
-                                {
-                                  source_id: source.id,
-                                  title: result.headlines[0] ?? "Geen titel gevonden",
-                                  content: result.paragraphs.join(" ").slice(0, 500),
-                                  url: source.url,
-                                },
-                              ]);
-                            }
-                          }}
-                        >
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleScan(source)}>
                           Scan
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setEditSource(source)}
-                        >
-                          <Settings className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(source.id)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(source.id)}>
                           <Trash2 className="w-4 h-4 text-red-600" />
                         </Button>
                       </div>

@@ -82,6 +82,8 @@ export const Dashboard = () => {
             signal.topic.toLowerCase() === activeFilter.toLowerCase()
         );
 
+        
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">

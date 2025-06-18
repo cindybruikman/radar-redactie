@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, MapPin, Tag } from "lucide-react";
 import { Signal } from "@/components/Dashboard";
+import { supabase } from "@/lib/supabaseClient";
 
 interface SignalCardProps {
   signal: Signal;
@@ -38,6 +39,32 @@ export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
         return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const handleSaveAsLead = async (signal: Signal) => {
+    const newLead = {
+      title: signal.title ?? "Zonder titel",
+      description: signal.content ?? "",
+      savedBy: "journalist",
+      savedDate: new Date().toISOString(),
+      category: signal.topic ?? "Onbekend",
+      priority: signal.priority ?? "medium",
+      status: "research",
+      sourceType: "signal",
+      neighborhood: signal.neighborhood ?? "Onbekend",
+      notes: "",
+      tags: [],
+    };
+
+    console.log("Insert object:", newLead);
+
+    const { error } = await supabase.from("leads").insert([newLead]);
+
+    if (error) {
+      console.error("Fout bij opslaan als lead:", error);
+    } else {
+      console.log("Lead succesvol opgeslagen.");
     }
   };
 
@@ -111,7 +138,10 @@ export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
               </Button>
               <Button
                 size="sm"
-                onClick={() => onAction(signal.id, "follow-up")}
+                onClick={() => {
+                  onAction(signal.id, "follow-up");
+                  handleSaveAsLead(signal);
+                }}
                 className="text-xs"
               >
                 Opslaan
@@ -123,3 +153,5 @@ export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
     </Card>
   );
 };
+
+export default SignalCard;

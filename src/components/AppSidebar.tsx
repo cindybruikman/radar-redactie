@@ -1,13 +1,5 @@
 
-import {
-  Calendar,
-  Home,
-  MessageSquare,
-  Bookmark,
-  Settings,
-  Users,
-  Building,
-} from "lucide-react";
+import { Calendar, Home, MessageSquare, Bookmark, Settings, Users, Building } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -19,45 +11,45 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 
 const navigationItems = [
   {
-    title: "Dashboard",
-    url: "/",
+    title: 'Dashboard',
+    url: '/',
     icon: Home,
   },
   {
-    title: "Agenda",
-    url: "/agenda",
+    title: 'Agenda',
+    url: '/agenda',
     icon: Calendar,
   },
   {
-    title: "Community Input",
-    url: "#",
+    title: 'Community Input',
+    url: '#',
     icon: MessageSquare,
   },
   {
-    title: "Opgeslagen Leads",
-    url: "/opgeslagen-leads",
+    title: 'Opgeslagen Leads',
+    url: '#',
     icon: Bookmark,
   },
 ];
 
 const toolsItems = [
   {
-    title: "Wijkverkenner",
-    url: "/wijkverkenner",
+    title: 'Wijkverkenner',
+    url: '#',
     icon: Building,
   },
   {
-    title: "Bronnen Beheer",
-    url: "/bronnen-beheer",
+    title: 'Bronnen Beheer',
+    url: '#',
     icon: Users,
   },
   {
-    title: "Instellingen",
-    url: "#",
+    title: 'Instellingen',
+    url: '#',
     icon: Settings,
   },
 ];
@@ -76,7 +68,7 @@ export function AppSidebar() {
           </div>
         </div>
       </SidebarHeader>
-
+      
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Navigatie</SidebarGroupLabel>

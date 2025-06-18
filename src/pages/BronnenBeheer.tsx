@@ -24,12 +24,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Globe,
   Plus,
   Settings,
   AlertCircle,
   CheckCircle,
   Trash2,
+  ChevronDown,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { scrapeWebsite } from "@/lib/scraper";
@@ -81,6 +88,19 @@ const BronnenBeheer = () => {
     if (!error && data) {
       setSources((prev) => prev.map((s) => (s.id === id ? data[0] : s)));
       setEditSource(null);
+    }
+  };
+
+  const handlePriorityChange = async (sourceId: string, newPriority: Source["priority"]) => {
+    const { error } = await supabase
+      .from("sources")
+      .update({ priority: newPriority })
+      .eq("id", sourceId);
+
+    if (!error) {
+      setSources((prev) => 
+        prev.map((s) => s.id === sourceId ? { ...s, priority: newPriority } : s)
+      );
     }
   };
 
@@ -136,6 +156,36 @@ const BronnenBeheer = () => {
     };
 
     return <Badge className={variants[priority]}>{priority}</Badge>;
+  };
+
+  const getPriorityDropdown = (source: Source) => {
+    const priorityOptions = [
+      { value: "high", label: "High" },
+      { value: "medium", label: "Medium" },
+      { value: "low", label: "Low" }
+    ] as const;
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex items-center gap-1 hover:opacity-80 transition-opacity">
+            {getPriorityBadge(source.priority)}
+            <ChevronDown className="w-3 h-3 text-gray-500" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          {priorityOptions.map((option) => (
+            <DropdownMenuItem
+              key={option.value}
+              onClick={() => handlePriorityChange(source.id, option.value)}
+              className="cursor-pointer"
+            >
+              {option.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
   };
 
   const getTypeLabel = (type: Source["type"]) => {
@@ -228,7 +278,7 @@ const BronnenBeheer = () => {
                       <div className="text-sm text-gray-500">{source.url}</div>
                     </TableCell>
                     <TableCell>{getTypeLabel(source.type)}</TableCell>
-                    <TableCell>{getPriorityBadge(source.priority)}</TableCell>
+                    <TableCell>{getPriorityDropdown(source)}</TableCell>
                     <TableCell>{source.lastScanned}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{source.signalsFound}</Badge>

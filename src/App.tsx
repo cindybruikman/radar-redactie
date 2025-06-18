@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,7 @@ import Agenda from "./pages/Agenda";
 import NotFound from "./pages/NotFound";
 import BronnenBeheer from "./pages/BronnenBeheer";
 import Wijkverkenner from "./pages/Wijkverkenner";
+import OpgeslagenLeads from "./pages/OpgeslagenLeads";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +24,7 @@ const App = () => (
           <Route path="/agenda" element={<Agenda />} />
           <Route path="/bronnen-beheer" element={<BronnenBeheer />} />
           <Route path="/wijkverkenner" element={<Wijkverkenner />} />
+          <Route path="/opgeslagen-leads" element={<OpgeslagenLeads />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

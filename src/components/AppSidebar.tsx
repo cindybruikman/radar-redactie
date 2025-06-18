@@ -1,3 +1,4 @@
+
 import {
   Calendar,
   Home,
@@ -38,7 +39,7 @@ const navigationItems = [
   },
   {
     title: "Opgeslagen Leads",
-    url: "#",
+    url: "/opgeslagen-leads",
     icon: Bookmark,
   },
 ];

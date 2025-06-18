@@ -342,336 +342,118 @@ export default function Wijkverkenner() {
         }`}
       >
         <AppSidebar />
-        <main className="flex-1 flex flex-col p-6">
-          <div className="max-w-5xl mx-auto w-full">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <main className="flex-1 flex flex-row h-[calc(100vh-0.5rem)] gap-6">
+          {/* Zijmenu links */}
+          <aside className="w-[340px] min-w-[260px] max-w-sm flex-shrink-0 flex flex-col gap-6 overflow-y-auto pt-2 pb-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="max-w-3xl">
                 <h1 className="text-2xl font-bold text-gray-900 mb-3">
                   Wijkverkenner
                 </h1>
-                <p className="text-gray-600 text-lg mb-6">
+                <p className="text-gray-600 text-sm mb-6">
                   Ontdek wat er gebeurt in verschillende buurten. Op deze kaart
                   vind je actuele gebeurtenissen en activiteiten in
                   verschillende wijken in Nederland.
                 </p>
-
-                {!hasSelectedLocation ? (
-                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-6 text-center">
-                    <h2 className="text-xl font-semibold text-blue-900 mb-4">
-                      Kies je locatie
-                    </h2>
-                    <p className="text-blue-700 mb-6">
-                      Om te beginnen, kies een locatie door je postcode/plaats
-                      in te vullen of gebruik je huidige locatie.
-                    </p>
-                    <div className="flex flex-col md:flex-row gap-4 max-w-lg mx-auto">
-                      <div className="flex-1">
-                        <input
-                          type="text"
-                          className="w-full border border-gray-300 rounded-md px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          value={postcodeInput}
-                          onChange={(e) => setPostcodeInput(e.target.value)}
-                          onKeyDown={handleLocationInputKeyDown}
-                          placeholder="Bijv. 5038 AA of Tilburg Centrum"
-                          disabled={loadingGeo}
+                <label
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                  htmlFor="postcodeInput"
+                >
+                  Voer een postcode of locatie in
+                </label>
+                <input
+                  id="postcodeInput"
+                  type="text"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+                  value={postcodeInput}
+                  onChange={(e) => setPostcodeInput(e.target.value)}
+                  onKeyDown={handleLocationInputKeyDown}
+                  placeholder="Bijv. 5038 AA of Tilburg Centrum"
+                  disabled={loadingGeo}
+                />
+                <Button
+                  onClick={handleUseMyLocation}
+                  disabled={loadingGeo}
+                  className="w-full"
+                >
+                  {loadingGeo ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
                         />
-                      </div>
-                      <Button
-                        onClick={handleUseMyLocation}
-                        disabled={loadingGeo}
-                      >
-                        {loadingGeo ? (
-                          <span className="flex items-center justify-center gap-2">
-                            <svg
-                              className="animate-spin h-5 w-5"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                fill="none"
-                              />
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              />
-                            </svg>
-                            Locatie ophalen...
-                          </span>
-                        ) : (
-                          "Gebruik mijn locatie"
-                        )}
-                      </Button>
-                    </div>
-                    {geoError && (
-                      <div className="mt-4 text-red-600">{geoError}</div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <div className="flex-1">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Voer een postcode of locatie in
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full border border-gray-300 rounded-md px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value={postcodeInput}
-                        onChange={(e) => setPostcodeInput(e.target.value)}
-                        onKeyDown={handleLocationInputKeyDown}
-                        placeholder="Bijv. 5038 AA of Tilburg Centrum"
-                        disabled={loadingGeo}
-                      />
-                    </div>
-                    <div className="md:self-end">
-                      <Button
-                        onClick={handleUseMyLocation}
-                        disabled={loadingGeo}
-                      >
-                        {loadingGeo ? (
-                          <span className="flex items-center justify-center gap-2">
-                            <svg
-                              className="animate-spin h-5 w-5"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                fill="none"
-                              />
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              />
-                            </svg>
-                            Locatie ophalen...
-                          </span>
-                        ) : (
-                          "Gebruik mijn locatie"
-                        )}
-                      </Button>
-                    </div>
-                  </div>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Locatie ophalen...
+                    </span>
+                  ) : (
+                    "Gebruik mijn locatie"
+                  )}
+                </Button>
+                {geoError && (
+                  <div className="mt-4 text-red-600">{geoError}</div>
                 )}
               </div>
             </div>
-
-            {/* Modal voor nieuwsartikel */}
-            {isModalOpen && selectedEvent && (
-              <ModalPortal>
-                {/* Vaste overlay met click handler */}
-                <div
-                  className="fixed inset-0 bg-black/70 backdrop-blur-[2px]"
-                  style={{ zIndex: 9999 }}
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    setSelectedEvent(null);
-                  }}
-                />
-
-                {/* Modal container met scroll */}
-                <div
-                  className="fixed inset-0 overflow-y-auto"
-                  style={{ zIndex: 10000 }}
-                >
-                  <div className="flex min-h-full items-start justify-center p-4">
-                    {/* Modal content, stopt de click-propagatie */}
+            {/* Legenda */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold mb-3">Legenda</h3>
+              <div className="grid grid-cols-1 gap-3">
+                {Object.values(CATEGORIES).map((category) => (
+                  <div
+                    key={category.id}
+                    className={`${category.color} rounded-lg p-3 flex items-start gap-3`}
+                  >
                     <div
-                      className="relative w-full max-w-3xl bg-white rounded-lg shadow-xl mt-10"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="p-8">
-                        <div className="flex justify-between items-start mb-6">
-                          <h2 className="text-3xl font-bold text-gray-900 pr-6">
-                            {selectedEvent.title}
-                          </h2>
-                          <button
-                            onClick={() => {
-                              setIsModalOpen(false);
-                              setSelectedEvent(null);
-                            }}
-                            className="absolute top-6 right-6 text-gray-500 hover:text-gray-700 transition-colors"
-                          >
-                            <svg
-                              className="w-8 h-8"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                        <div className="space-y-6">
-                          <div className="flex items-center justify-between border-b border-gray-200 pb-4">
-                            <div className="text-base text-gray-500">
-                              {selectedEvent.date} - {selectedEvent.location}
-                            </div>
-                            <div
-                              className={`text-sm px-4 py-2 rounded-full ${
-                                CATEGORIES[selectedEvent.category].color
-                              }`}
-                            >
-                              {CATEGORIES[selectedEvent.category].name}
-                            </div>
-                          </div>
-                          <article className="prose prose-lg max-w-none">
-                            {selectedEvent.description
-                              .split("\n\n")
-                              .map((paragraph, index) => (
-                                <p
-                                  key={index}
-                                  className="text-gray-700 text-lg leading-relaxed mb-6"
-                                >
-                                  {paragraph}
-                                </p>
-                              ))}
-                          </article>
-
-                          {/* Knop voor bron */}
-                          <div className="pt-6 border-t border-gray-200 mt-6">
-                            <Button className="w-full">Ga naar de bron</Button>
-                          </div>
-                        </div>
-                      </div>
+                      className={`w-4 h-4 mt-1 rounded-full flex-shrink-0 ${category.iconColor}`}
+                    />
+                    <div>
+                      <h4 className="font-medium text-gray-900">
+                        {category.name}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {category.description}
+                      </p>
                     </div>
                   </div>
-                </div>
-              </ModalPortal>
-            )}
-
-            {hasSelectedLocation && (
-              <>
-                {/* Legenda */}
-                <div className="mb-4 p-4 bg-white rounded-lg shadow-sm">
-                  <h3 className="text-lg font-semibold mb-3">Legenda</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {Object.values(CATEGORIES).map((category) => (
-                      <div
-                        key={category.id}
-                        className={`${category.color} rounded-lg p-3 flex items-start gap-3`}
-                      >
-                        <div
-                          className={`w-4 h-4 mt-1 rounded-full flex-shrink-0 ${category.iconColor}`}
-                        />
-                        <div>
-                          <h4 className="font-medium text-gray-900">
-                            {category.name}
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            {category.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Locatie indicator */}
-                <div className="mb-2 text-gray-700 text-sm">
-                  {lastSearchedLabel
-                    ? `Je bekijkt nu: ${lastSearchedLabel}`
-                    : location.coords[0] === TILBURG_COORDS[0] &&
-                      location.coords[1] === TILBURG_COORDS[1]
-                    ? "Je bekijkt nu: Tilburg"
-                    : `Je bekijkt nu: Je huidige locatie (${(
-                        location.coords as number[]
-                      )[0].toFixed(4)}, ${(
-                        location.coords as number[]
-                      )[1].toFixed(4)})`}
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                  <MapContainer
-                    center={location.coords as LatLngExpression}
-                    zoom={12}
-                    style={{ height: "500px", width: "100%", maxWidth: "100%" }}
-                    scrollWheelZoom={true}
-                  >
-                    <TileLayer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    />
-                    <MapAutoCenter
-                      coords={location.coords as LatLngExpression}
-                    />
-                    {TILBURG_EVENTS.map((item) => (
-                      <Marker
-                        key={item.id}
-                        position={item.coords as LatLngExpression}
-                        icon={categoryIcons[item.category]}
-                      >
-                        <Popup>
-                          <div className="font-semibold text-base mb-1">
-                            {item.title}
-                          </div>
-                          <div className="text-xs text-gray-500 mb-1">
-                            {item.date} - {item.location}
-                          </div>
-                          <div className="text-sm mb-2">
-                            {item.shortDescription}
-                          </div>
-                          <div
-                            className={`text-xs mb-2 px-2 py-1 rounded-full inline-block ${
-                              CATEGORIES[item.category].color
-                            }`}
-                          >
-                            {CATEGORIES[item.category].name}
-                          </div>
-                          <Button
-                            onClick={() => {
-                              setSelectedEvent(item);
-                              setIsModalOpen(true);
-                            }}
-                            size="sm"
-                          >
-                            Bekijk nieuws
-                          </Button>
-                        </Popup>
-                      </Marker>
-                    ))}
-                  </MapContainer>
-                </div>
-
-                {/* Horizontale slider met nieuwsberichten */}
-                <div className="mt-8">
-                  <h2 className="text-xl font-semibold mb-4">
-                    Actuele gebeurtenissen
-                  </h2>
-                  <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    {TILBURG_EVENTS.map((item) => (
-                      <div
-                        key={item.id}
-                        onClick={() => {
-                          setSelectedEvent(item);
-                          setIsModalOpen(true);
-                        }}
-                        className="min-w-[280px] max-w-[320px] bg-white rounded-lg shadow p-4 flex-shrink-0 border border-gray-200 transition duration-150 cursor-pointer hover:bg-gray-50"
-                        tabIndex={0}
-                        role="button"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            setSelectedEvent(item);
-                            setIsModalOpen(true);
-                          }
-                        }}
-                      >
-                        <div className="font-semibold text-base mb-1 truncate">
+                ))}
+              </div>
+            </div>
+          </aside>
+          {/* Rechterkolom: kaart en cards */}
+          <section className="flex-1 flex flex-col gap-6 overflow-y-auto pt-2 pb-6">
+            <div className="px-6">
+              {/* Kaart */}
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden max-w-3xl w-full">
+                <MapContainer
+                  center={location.coords as LatLngExpression}
+                  zoom={12}
+                  style={{ height: "520px", width: "100%", maxWidth: "100%" }}
+                  scrollWheelZoom={true}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  <MapAutoCenter coords={location.coords as LatLngExpression} />
+                  {TILBURG_EVENTS.map((item) => (
+                    <Marker
+                      key={item.id}
+                      position={item.coords as LatLngExpression}
+                      icon={categoryIcons[item.category]}
+                    >
+                      <Popup>
+                        <div className="font-semibold text-base mb-1">
                           {item.title}
                         </div>
                         <div className="text-xs text-gray-500 mb-1">
@@ -687,13 +469,66 @@ export default function Wijkverkenner() {
                         >
                           {CATEGORIES[item.category].name}
                         </div>
+                        <Button
+                          onClick={() => {
+                            setSelectedEvent(item);
+                            setIsModalOpen(true);
+                          }}
+                          size="sm"
+                          className="w-full mt-2"
+                        >
+                          Bekijk nieuws
+                        </Button>
+                      </Popup>
+                    </Marker>
+                  ))}
+                </MapContainer>
+              </div>
+              {/* Cards */}
+              <div className="mt-2">
+                <h2 className="text-xl font-semibold mb-4">
+                  Actuele gebeurtenissen
+                </h2>
+                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  {TILBURG_EVENTS.map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        setSelectedEvent(item);
+                        setIsModalOpen(true);
+                      }}
+                      className="min-w-[280px] max-w-[320px] bg-white rounded-lg shadow p-4 flex-shrink-0 border border-gray-200 transition duration-150 cursor-pointer hover:bg-gray-50"
+                      tabIndex={0}
+                      role="button"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          setSelectedEvent(item);
+                          setIsModalOpen(true);
+                        }
+                      }}
+                    >
+                      <div className="font-semibold text-base mb-1 truncate">
+                        {item.title}
                       </div>
-                    ))}
-                  </div>
+                      <div className="text-xs text-gray-500 mb-1">
+                        {item.date} - {item.location}
+                      </div>
+                      <div className="text-sm mb-2">
+                        {item.shortDescription}
+                      </div>
+                      <div
+                        className={`text-xs mb-2 px-2 py-1 rounded-full inline-block ${
+                          CATEGORIES[item.category].color
+                        }`}
+                      >
+                        {CATEGORIES[item.category].name}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          </section>
         </main>
       </div>
     </SidebarProvider>

@@ -18,7 +18,7 @@
 
 ## 🖼️ Screenshot
 
-![Screenshot of the app](public/image.png)
+![Screenshot of the app](public//img/image.png)
 
 ---
 

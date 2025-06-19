@@ -1,6 +1,5 @@
-
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface FilterBarProps {
   activeFilter: string;
@@ -8,26 +7,33 @@ interface FilterBarProps {
 }
 
 const filters = [
-  { key: 'all', label: 'Alle signalen', count: 12 },
-  { key: 'centrum', label: 'Centrum', count: 3 },
-  { key: 'noord', label: 'Noord', count: 2 },
-  { key: 'west', label: 'West', count: 4 },
-  { key: 'oost', label: 'Oost', count: 1 },
-  { key: 'zuid', label: 'Zuid', count: 2 },
+  { key: "all", label: "Alle signalen", count: 12 },
+  { key: "waalwijk", label: "Waalwijk", count: 3 },
+  { key: "heusden", label: "Heusden", count: 2 },
+  { key: "dongen", label: "Dongen", count: 1 },
+  { key: "loon-op-zand", label: "Loon op Zand", count: 4 },
+  { key: "gilze-en-rijen", label: "Gilze en Rijen", count: 2 },
+  { key: "tilburg", label: "Tilburg", count: 6 },
+  { key: "oisterwijk", label: "Oisterwijk", count: 1 },
+  { key: "goirle", label: "Goirle", count: 1 },
+  { key: "hilvarenbeek", label: "Hilvarenbeek", count: 2 },
 ];
 
 const topicFilters = [
-  { key: 'woningbouw', label: 'Woningbouw', count: 5 },
-  { key: 'verkeer', label: 'Verkeer', count: 3 },
-  { key: 'jeugd', label: 'Jeugd', count: 2 },
-  { key: 'veiligheid', label: 'Veiligheid', count: 2 },
+  { key: "samenleving", label: "Samenleving & Gemeente", count: 5 },
+  { key: "veiligheid", label: "Veiligheid & Incidenten", count: 3 },
+  { key: "cultuur", label: "Cultuur & Evenementen", count: 2 },
+  { key: "ondernemen", label: "Ondernemen & Werk", count: 4 },
+  { key: "leefomgeving", label: "Leefomgeving & Mobiliteit", count: 3 },
 ];
 
 export const FilterBar = ({ activeFilter, onFilterChange }: FilterBarProps) => {
   return (
     <div className="bg-white rounded-lg border p-4 space-y-4">
       <div>
-        <h3 className="text-sm font-medium text-gray-700 mb-3">Filter op wijk</h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-3">
+          Filter op wijk
+        </h3>
         <div className="flex flex-wrap gap-2">
           {filters.map((filter) => (
             <Button
@@ -47,7 +53,9 @@ export const FilterBar = ({ activeFilter, onFilterChange }: FilterBarProps) => {
       </div>
 
       <div>
-        <h3 className="text-sm font-medium text-gray-700 mb-3">Filter op onderwerp</h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-3">
+          Filter op onderwerp
+        </h3>
         <div className="flex flex-wrap gap-2">
           {topicFilters.map((filter) => (
             <Button

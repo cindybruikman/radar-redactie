@@ -212,6 +212,85 @@ L.Marker.prototype.options.icon = L.icon({
   iconAnchor: [12, 41],
 });
 
+// Custom slider styles
+const sliderStyles = `
+  .news-age-slider {
+    width: 100%;
+    height: 4px;
+    background: #e5e7eb; /* Tailwind gray-200 */
+    border-radius: 2px;
+    outline: none;
+    margin-top: 0.5rem;
+  }
+  .news-age-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #111827; /* Tailwind gray-900 (zwart) */
+    cursor: pointer;
+    margin-top: -7px; /* Center thumb on track, fine-tuned */
+    transition: background 0.2s;
+    border: none;
+    box-shadow: none;
+  }
+  .news-age-slider:focus::-webkit-slider-thumb {
+    outline: none;
+  }
+  .news-age-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #111827;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: none;
+    box-shadow: none;
+  }
+  .news-age-slider:focus::-moz-range-thumb {
+    outline: none;
+  }
+  .news-age-slider::-ms-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #111827;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: none;
+    box-shadow: none;
+  }
+  .news-age-slider:focus::-ms-thumb {
+    outline: none;
+  }
+  .news-age-slider::-ms-fill-lower {
+    background: #e5e7eb;
+  }
+  .news-age-slider::-ms-fill-upper {
+    background: #e5e7eb;
+  }
+  .news-age-slider::-webkit-slider-runnable-track {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+  }
+  .news-age-slider::-moz-range-track {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+  }
+  .news-age-slider:focus {
+    outline: none;
+  }
+`;
+
+if (typeof document !== "undefined") {
+  const style = document.createElement("style");
+  style.innerHTML = sliderStyles;
+  document.head.appendChild(style);
+}
+
 function useInitialLocation() {
   const [location, setLocation] = useState<{ coords: LatLngExpression }>(
     () => ({ coords: TILBURG_COORDS })
@@ -249,6 +328,9 @@ export default function Wijkverkenner() {
     (typeof TILBURG_EVENTS)[0] | null
   >(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [newsAgeMin, setNewsAgeMin] = useState(1);
+  const [newsAgeMax, setNewsAgeMax] = useState(60);
 
   // Probeer geolocatie op mount, maar update alleen als succesvol
   useEffect(() => {
@@ -355,22 +437,84 @@ export default function Wijkverkenner() {
                   vind je actuele gebeurtenissen en activiteiten in
                   verschillende wijken in Nederland.
                 </p>
-                <label
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                  htmlFor="postcodeInput"
+                <form
+                  className="flex items-center justify-center w-full mb-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (postcodeInput.trim()) {
+                      setLoadingGeo(true);
+                      setGeoError(null);
+                      try {
+                        const q = encodeURIComponent(postcodeInput.trim());
+                        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${q}&countrycodes=nl&limit=1`;
+                        const res = await fetch(url, {
+                          headers: { "Accept-Language": "nl" },
+                        });
+                        const data = await res.json();
+                        if (data && data.length > 0) {
+                          const lat = parseFloat(data[0].lat);
+                          const lon = parseFloat(data[0].lon);
+                          setLocation({ coords: [lat, lon] });
+                          setLastSearchedLabel(postcodeInput.trim());
+                          setHasSelectedLocation(true);
+                        } else {
+                          setGeoError(
+                            "Locatie niet gevonden. Probeer een andere postcode of plaatsnaam."
+                          );
+                        }
+                      } catch {
+                        setGeoError(
+                          "Er is iets misgegaan bij het zoeken naar de locatie."
+                        );
+                      } finally {
+                        setLoadingGeo(false);
+                      }
+                    }
+                  }}
                 >
-                  Voer een postcode of locatie in
-                </label>
-                <input
-                  id="postcodeInput"
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
-                  value={postcodeInput}
-                  onChange={(e) => setPostcodeInput(e.target.value)}
-                  onKeyDown={handleLocationInputKeyDown}
-                  placeholder="Bijv. 5038 AA of Tilburg Centrum"
-                  disabled={loadingGeo}
-                />
+                  <div className="w-full max-w-full flex gap-x-1">
+                    <input
+                      id="postcodeInput"
+                      type="text"
+                      className="flex-1 border border-gray-300 border-r-0 rounded-l-md px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-blue-50 h-[44px]"
+                      value={postcodeInput}
+                      onChange={(e) => setPostcodeInput(e.target.value)}
+                      onKeyDown={handleLocationInputKeyDown}
+                      placeholder="Bijv. 5038 AA of Tilburg Centrum"
+                      disabled={loadingGeo}
+                      style={{
+                        borderTopRightRadius: 0,
+                        borderBottomRightRadius: 0,
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      className="bg-black hover:bg-gray-900 text-white w-12 h-[44px] rounded-r-md flex items-center justify-center disabled:opacity-60 border border-gray-300 border-l-0"
+                      disabled={loadingGeo || !postcodeInput.trim()}
+                      aria-label="Zoek locatie"
+                      style={{
+                        borderTopLeftRadius: 0,
+                        borderBottomLeftRadius: 0,
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M17.25 6.75L21 12m0 0l-3.75 5.25M21 12H3"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </form>
+                <div className="text-center text-gray-500 text-xs mb-2">of</div>
                 <Button
                   onClick={handleUseMyLocation}
                   disabled={loadingGeo}
@@ -408,33 +552,88 @@ export default function Wijkverkenner() {
             {/* Legenda */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-semibold mb-3">Legenda</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Kies tussen de verschillende categorieën van gebeurtenissen.
+              </p>
               <div className="grid grid-cols-1 gap-3">
-                {Object.values(CATEGORIES).map((category) => (
-                  <div
-                    key={category.id}
-                    className={`${category.color} rounded-lg p-3 flex items-start gap-3`}
-                  >
-                    <div
-                      className={`w-4 h-4 mt-1 rounded-full flex-shrink-0 ${category.iconColor}`}
-                    />
-                    <div>
-                      <h4 className="font-medium text-gray-900">
-                        {category.name}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {category.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                {Object.values(CATEGORIES).map((category) => {
+                  const isActive = selectedCategory === category.id;
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onClick={() =>
+                        setSelectedCategory(isActive ? null : category.id)
+                      }
+                      className={
+                        `${category.color} rounded-lg p-3 flex items-start gap-3 w-full text-left transition border border-transparent hover:border-slate-300` +
+                        (isActive ? "border border-slate-800" : "")
+                      }
+                    >
+                      <div
+                        className={`w-4 h-4 mt-1 rounded-full flex-shrink-0 ${category.iconColor}`}
+                      />
+                      <div>
+                        <h4 className="font-medium text-gray-900">
+                          {category.name}
+                        </h4>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
+              {/* Filter: nieuwsleeftijd */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nieuws van maximaal
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={1}
+                    max={60}
+                    value={newsAgeMin}
+                    onChange={(e) => setNewsAgeMin(Number(e.target.value))}
+                    className="w-16 border border-gray-300 rounded px-2 py-1 text-sm"
+                    aria-label="Minimaal aantal dagen oud"
+                  />
+                  <span className="text-xs text-gray-500">tot</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={60}
+                    value={newsAgeMax}
+                    onChange={(e) => setNewsAgeMax(Number(e.target.value))}
+                    className="w-16 border border-gray-300 rounded px-2 py-1 text-sm"
+                    aria-label="Maximaal aantal dagen oud"
+                  />
+                  <span className="text-xs text-gray-500">dagen oud</span>
+                </div>
+                <input
+                  type="range"
+                  min={1}
+                  max={60}
+                  value={newsAgeMax}
+                  onChange={(e) => setNewsAgeMax(Number(e.target.value))}
+                  className="news-age-slider"
+                  aria-label="Filter nieuwsleeftijd in dagen"
+                />
+              </div>
+              {selectedCategory && (
+                <button
+                  className="mt-3 text-xs underline text-slate-700 hover:text-slate-900"
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  Toon alle categorieën
+                </button>
+              )}
             </div>
           </aside>
           {/* Rechterkolom: kaart en cards */}
-          <section className="flex-1 flex flex-col gap-6 overflow-y-auto pt-2 pb-6">
-            <div className="px-6">
+          <section className="flex-1 flex flex-col gap-6 overflow-y-auto pt-2 pb-6 pr-4">
+            <div>
               {/* Kaart */}
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden max-w-3xl w-full">
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden w-full">
                 <MapContainer
                   center={location.coords as LatLngExpression}
                   zoom={12}
@@ -446,7 +645,10 @@ export default function Wijkverkenner() {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                   />
                   <MapAutoCenter coords={location.coords as LatLngExpression} />
-                  {TILBURG_EVENTS.map((item) => (
+                  {TILBURG_EVENTS.filter(
+                    (ev) =>
+                      !selectedCategory || ev.category === selectedCategory
+                  ).map((item) => (
                     <Marker
                       key={item.id}
                       position={item.coords as LatLngExpression}
@@ -486,11 +688,14 @@ export default function Wijkverkenner() {
               </div>
               {/* Cards */}
               <div className="mt-2">
-                <h2 className="text-xl font-semibold mb-4">
+                <h2 className="text-xl font-semibold mb-4 mt-8">
                   Actuele gebeurtenissen
                 </h2>
-                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  {TILBURG_EVENTS.map((item) => (
+                <div className="flex flex-wrap gap-4">
+                  {TILBURG_EVENTS.filter(
+                    (ev) =>
+                      !selectedCategory || ev.category === selectedCategory
+                  ).map((item) => (
                     <div
                       key={item.id}
                       onClick={() => {
@@ -529,6 +734,38 @@ export default function Wijkverkenner() {
               </div>
             </div>
           </section>
+          {/* Modal voor event details */}
+          {isModalOpen && selectedEvent && (
+            <ModalPortal>
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-40">
+                <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
+                  <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                    onClick={() => setIsModalOpen(false)}
+                    aria-label="Sluiten"
+                  >
+                    &times;
+                  </button>
+                  <h2 className="text-xl font-bold mb-2">
+                    {selectedEvent.title}
+                  </h2>
+                  <div className="text-xs text-gray-500 mb-1">
+                    {selectedEvent.date} - {selectedEvent.location}
+                  </div>
+                  <div className="mb-4 whitespace-pre-line">
+                    {selectedEvent.description}
+                  </div>
+                  <div
+                    className={`text-xs mb-2 px-2 py-1 rounded-full inline-block ${
+                      CATEGORIES[selectedEvent.category].color
+                    }`}
+                  >
+                    {CATEGORIES[selectedEvent.category].name}
+                  </div>
+                </div>
+              </div>
+            </ModalPortal>
+          )}
         </main>
       </div>
     </SidebarProvider>

@@ -59,12 +59,15 @@ export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
 
     console.log("Insert object:", newLead);
 
-    const { error } = await supabase.from("leads").insert([newLead]);
+    const { data, error } = await supabase
+      .from("leads")
+      .insert([newLead])
+      .select("*");
 
     if (error) {
       console.error("Fout bij opslaan als lead:", error);
     } else {
-      console.log("Lead succesvol opgeslagen.");
+      console.log("Lead succesvol opgeslagen:", data);
     }
   };
 
@@ -153,5 +156,3 @@ export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
     </Card>
   );
 };
-
-export default SignalCard;

@@ -8,6 +8,7 @@ import Agenda from "./pages/Agenda";
 import NotFound from "./pages/NotFound";
 import BronnenBeheer from "./pages/BronnenBeheer";
 import OpgeslagenLeads from "./pages/OpgeslagenLeads";
+import Wijkverkenner from "./pages/Wijkverkenner";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/agenda" element={<Agenda />} />
           <Route path="/bronnen-beheer" element={<BronnenBeheer />} />
           <Route path="/opgeslagen-leads" element={<OpgeslagenLeads />} />
+          <Route path="/wijkverkenner" element={<Wijkverkenner />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

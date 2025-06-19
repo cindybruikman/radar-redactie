@@ -41,7 +41,7 @@ const navigationItems = [
 const toolsItems = [
   {
     title: "Wijkverkenner",
-    url: "#",
+    url: "/wijkverkenner",
     icon: Building,
   },
   {

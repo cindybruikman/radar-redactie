@@ -36,23 +36,40 @@ export const Dashboard = () => {
     }
   };
 
+  // Zet fetchSignals HIERBOVEN
+  const fetchSignals = async () => {
+    const { data, error } = await supabase.from("signals").select("*");
+    if (!error && data) {
+      const mapped = data.map((item) => ({
+        id: item.id,
+        title: item.title,
+        source: item.source_name ?? "Onbekend",
+        neighborhood: item.neighborhood ?? "Onbekend",
+        topic: item.topic ?? "Algemeen",
+        time: "1 uur geleden",
+        content: item.content,
+        priority: item.priority ?? "medium",
+        status: item.status ?? "new",
+      }));
+      setSignals(mapped);
+    }
+  };
+
   useEffect(() => {
     const fetchSignals = async () => {
       const { data, error } = await supabase.from("signals").select("*");
-
-      if (error) {
-        console.error("Fout bij ophalen signalen:", error);
-      } else if (data) {
-        const mapped: Signal[] = data.map((item) => ({
+      if (!error && data) {
+        const mapped = data.map((item) => ({
           id: item.id,
-          title: item.title ?? "Geen titel",
-          source: item.source_name ?? extractDomain(item.url),
+          title: item.title,
+          source: item.source_name ?? "Onbekend",
           neighborhood: item.neighborhood ?? "Onbekend",
           topic: item.topic ?? "Algemeen",
           time: "1 uur geleden",
-          content: item.content ?? "",
+          content: item.content,
           priority: item.priority ?? "medium",
           status: item.status ?? "new",
+          is_saved: item.is_saved ?? false, // ✅ deze moet erbij
         }));
 
         setSignals(mapped);
@@ -81,8 +98,6 @@ export const Dashboard = () => {
             signal.neighborhood.toLowerCase() === activeFilter.toLowerCase() ||
             signal.topic.toLowerCase() === activeFilter.toLowerCase()
         );
-
-        
 
   return (
     <SidebarProvider>
@@ -135,7 +150,7 @@ export const Dashboard = () => {
                       size="sm"
                       onClick={() => window.location.reload()}
                     >
-                      Ververs
+                      Refresh
                     </Button>
                   </div>
 
@@ -145,6 +160,7 @@ export const Dashboard = () => {
                         key={signal.id}
                         signal={signal}
                         onAction={handleSignalAction}
+                        refresh={fetchSignals}
                       />
                     ))}
                   </div>

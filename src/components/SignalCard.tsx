@@ -11,6 +11,7 @@ interface SignalCardProps {
     signalId: string,
     action: "follow-up" | "covered" | "ignored"
   ) => void;
+  refresh: () => void;
 }
 
 export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
@@ -57,17 +58,24 @@ export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
       tags: [],
     };
 
-    console.log("Insert object:", newLead);
+    const { error: leadError } = await supabase.from("leads").insert([newLead]);
 
-    const { data, error } = await supabase
-      .from("leads")
-      .insert([newLead])
-      .select("*");
+    if (leadError) {
+      console.error("Fout bij opslaan als lead:", leadError);
+      return;
+    }
 
-    if (error) {
-      console.error("Fout bij opslaan als lead:", error);
+    const { error: updateError } = await supabase
+      .from("signals")
+      .update({ status: "follow-up", is_saved: true }) // ✅ voeg is_saved toe
+      .eq("id", signal.id);
+
+    if (updateError) {
+      console.error("Fout bij updaten van signal-status:", updateError);
     } else {
-      console.log("Lead succesvol opgeslagen:", data);
+      console.log("Signaalstatus geüpdatet naar 'follow-up'");
+      onAction(signal.id, "follow-up"); // ✅ Update status in React state
+      // Je mag `refresh()` daarna ook nog oproepen als je verse data uit db wil
     }
   };
 
@@ -142,7 +150,6 @@ export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
               <Button
                 size="sm"
                 onClick={() => {
-                  onAction(signal.id, "follow-up");
                   handleSaveAsLead(signal);
                 }}
                 className="text-xs"

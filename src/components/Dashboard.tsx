@@ -3,12 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { FilterBar } from "@/components/FilterBar";
 import { SignalCard } from "@/components/SignalCard";
 import { AgendaWidget } from "@/components/AgendaWidget";
 import { UntappedStories } from "@/components/UntappedStories";
+import { Search } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 
 export interface Signal {
@@ -26,6 +28,7 @@ export interface Signal {
 export const Dashboard = () => {
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [signals, setSignals] = useState<Signal[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const extractDomain = (url: string): string => {
     try {
@@ -36,7 +39,6 @@ export const Dashboard = () => {
     }
   };
 
-  // Zet fetchSignals HIERBOVEN
   const fetchSignals = async () => {
     const { data, error } = await supabase.from("signals").select("*");
     if (!error && data) {
@@ -56,27 +58,8 @@ export const Dashboard = () => {
   };
 
   useEffect(() => {
-    const fetchSignals = async () => {
-      const { data, error } = await supabase.from("signals").select("*");
-      if (!error && data) {
-        const mapped = data.map((item) => ({
-          id: item.id,
-          title: item.title,
-          source: item.source_name ?? "Onbekend",
-          neighborhood: item.neighborhood ?? "Onbekend",
-          topic: item.topic ?? "Algemeen",
-          time: "1 uur geleden",
-          content: item.content,
-          priority: item.priority ?? "medium",
-          status: item.status ?? "new",
-          is_saved: item.is_saved ?? false, // ✅ deze moet erbij
-        }));
-
-        setSignals(mapped);
-      }
-    };
-
     fetchSignals();
+    // eslint-disable-next-line
   }, []);
 
   const handleSignalAction = (
@@ -92,11 +75,29 @@ export const Dashboard = () => {
 
   const filteredSignals =
     activeFilter === "all"
-      ? signals
+      ? signals.filter(
+          (signal) =>
+            searchQuery === "" ||
+            signal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            signal.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            signal.neighborhood
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()) ||
+            signal.topic.toLowerCase().includes(searchQuery.toLowerCase())
+        )
       : signals.filter(
           (signal) =>
-            signal.neighborhood.toLowerCase() === activeFilter.toLowerCase() ||
-            signal.topic.toLowerCase() === activeFilter.toLowerCase()
+            (signal.neighborhood.toLowerCase() === activeFilter.toLowerCase() ||
+              signal.topic.toLowerCase() === activeFilter.toLowerCase()) &&
+            (searchQuery === "" ||
+              signal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              signal.content
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase()) ||
+              signal.neighborhood
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase()) ||
+              signal.topic.toLowerCase().includes(searchQuery.toLowerCase()))
         );
 
   return (
@@ -133,6 +134,18 @@ export const Dashboard = () => {
           {/* Main Content */}
           <main className="flex-1 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
+              {/* Search Bar */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Zoek in signalen, wijken, onderwerpen..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full max-w-md"
+                />
+              </div>
+
               <FilterBar
                 activeFilter={activeFilter}
                 onFilterChange={setActiveFilter}

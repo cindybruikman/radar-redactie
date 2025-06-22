@@ -27,7 +27,7 @@
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/radar-redactie.git
+git clone https://github.com/cindybruikman/radar-redactie.git
 cd radar-redactie
 ```
 

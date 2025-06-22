@@ -12,7 +12,6 @@ export async function scrapeWebsite(url: string) {
 
     const $ = cheerio.load(html);
 
-    // voorbeeld: alle <h1> en <p> tags ophalen
     const headlines = $('h1').map((_, el) => $(el).text().trim()).get();
     const paragraphs = $('p').map((_, el) => $(el).text().trim()).get();
 

@@ -110,7 +110,7 @@ export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
               {signal.status === "new"
                 ? "nieuw"
                 : signal.status === "follow-up"
-                ? "opvolgen"
+                ? "opgeslagen"
                 : signal.status === "covered"
                 ? "gedekt"
                 : "genegeerd"}

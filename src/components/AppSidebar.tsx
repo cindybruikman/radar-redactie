@@ -111,7 +111,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-4">
         <div className="text-xs text-gray-500 text-center">
-          © 2024 Omroep Tilburg
+          © 2025 Omroep Tilburg
         </div>
       </SidebarFooter>
     </Sidebar>

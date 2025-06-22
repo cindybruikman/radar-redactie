@@ -91,15 +91,20 @@ const BronnenBeheer = () => {
     }
   };
 
-  const handlePriorityChange = async (sourceId: string, newPriority: Source["priority"]) => {
+  const handlePriorityChange = async (
+    sourceId: string,
+    newPriority: Source["priority"]
+  ) => {
     const { error } = await supabase
       .from("sources")
       .update({ priority: newPriority })
       .eq("id", sourceId);
 
     if (!error) {
-      setSources((prev) => 
-        prev.map((s) => s.id === sourceId ? { ...s, priority: newPriority } : s)
+      setSources((prev) =>
+        prev.map((s) =>
+          s.id === sourceId ? { ...s, priority: newPriority } : s
+        )
       );
     }
   };
@@ -162,10 +167,23 @@ const BronnenBeheer = () => {
     const priorityOptions = [
       { value: "high", label: "High" },
       { value: "medium", label: "Medium" },
-      { value: "low", label: "Low" }
+      { value: "low", label: "Low" },
     ] as const;
 
-    
+    const sourcePriorityMap: Record<string, "low" | "medium" | "high"> = {
+      "tilburg.nl": "high",
+      "dongen.nl": "medium",
+      "loonopzand.nl": "low",
+    };
+
+    const getPriorityFromSource = (url: string): "low" | "medium" | "high" => {
+      try {
+        const hostname = new URL(url).hostname.replace("www.", "");
+        return sourcePriorityMap[hostname] || "medium";
+      } catch {
+        return "medium";
+      }
+    };
 
     return (
       <DropdownMenu>
@@ -320,6 +338,8 @@ const BronnenBeheer = () => {
                                     .join(" ")
                                     .slice(0, 500),
                                   url: source.url,
+                                  source_name: source.name,
+                                  priority: source.priority ?? "medium", // 👈 hier voeg je het toe
                                 },
                               ]);
                             }

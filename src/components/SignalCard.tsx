@@ -14,34 +14,26 @@ interface SignalCardProps {
   refresh: () => void;
 }
 
-export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "low":
-        return "bg-green-100 text-green-800 border-green-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
+const priorityStyles = {
+  high: {
+    border: "border-l-4 border-red-500",
+    badge: "bg-red-100 text-red-800",
+    label: "⚠️ Hoog",
+  },
+  medium: {
+    border: "border-l-4 border-yellow-400",
+    badge: "bg-yellow-100 text-yellow-800",
+    label: "⚡ Midden",
+  },
+  low: {
+    border: "border-l-4 border-blue-400",
+    badge: "bg-blue-100 text-blue-800",
+    label: "🕓 Laag",
+  },
+};
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "new":
-        return "bg-blue-100 text-blue-800";
-      case "follow-up":
-        return "bg-orange-100 text-orange-800";
-      case "covered":
-        return "bg-green-100 text-green-800";
-      case "ignored":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+export const SignalCard = ({ signal, onAction, refresh }: SignalCardProps) => {
+  const style = priorityStyles[signal.priority] ?? priorityStyles["low"];
 
   const handleSaveAsLead = async (signal: Signal) => {
     const newLead = {
@@ -67,24 +59,24 @@ export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
 
     const { error: updateError } = await supabase
       .from("signals")
-      .update({ status: "follow-up", is_saved: true }) // ✅ voeg is_saved toe
+      .update({ status: "follow-up", is_saved: true })
       .eq("id", signal.id);
 
     if (updateError) {
       console.error("Fout bij updaten van signal-status:", updateError);
     } else {
-      console.log("Signaalstatus geüpdatet naar 'follow-up'");
-      onAction(signal.id, "follow-up"); // ✅ Update status in React state
-      // Je mag `refresh()` daarna ook nog oproepen als je verse data uit db wil
+      onAction(signal.id, "follow-up");
     }
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card
+      className={`${style.border} bg-white hover:shadow-md transition-shadow rounded-lg`}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="font-medium text-gray-900 leading-tight mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">
               {signal.title}
             </h3>
             <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -102,11 +94,9 @@ export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
               </div>
             </div>
           </div>
-          <div className="flex gap-2 ml-4">
-            <Badge className={getPriorityColor(signal.priority)}>
-              {signal.priority}
-            </Badge>
-            <Badge className={getStatusColor(signal.status)}>
+          <div className="flex flex-col gap-1 items-end ml-4">
+            <Badge className={style.badge}>{style.label}</Badge>
+            <Badge className="bg-gray-100 text-gray-800">
               {signal.status === "new"
                 ? "nieuw"
                 : signal.status === "follow-up"
@@ -149,9 +139,7 @@ export const SignalCard = ({ signal, onAction }: SignalCardProps) => {
               </Button>
               <Button
                 size="sm"
-                onClick={() => {
-                  handleSaveAsLead(signal);
-                }}
+                onClick={() => handleSaveAsLead(signal)}
                 className="text-xs"
               >
                 Opslaan

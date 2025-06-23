@@ -112,7 +112,7 @@ export const Dashboard = () => {
                 <SidebarTrigger />
                 <div>
                   <h1 className="text-2xl font-semibold text-gray-900">
-                    RadarRedactie
+                    RedactieRadar
                   </h1>
                   <p className="text-sm text-gray-600">
                     Omroep Tilburg - Nieuwssignalen Dashboard

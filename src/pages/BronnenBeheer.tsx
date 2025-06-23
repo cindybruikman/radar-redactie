@@ -222,7 +222,7 @@ const BronnenBeheer = () => {
   return (
     <Layout
       title="Bronnen Beheer"
-      subtitle="Beheer en configureer nieuwsbronnen voor RadarRedactie"
+      subtitle="Beheer en configureer nieuwsbronnen voor RedactieRadar"
     >
       <div className="max-w-7xl mx-auto space-y-6">
         <Card>

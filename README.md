@@ -1,4 +1,4 @@
-# RadarRedactie
+# RedactieRadar
 
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
@@ -12,7 +12,7 @@
 
 ## 🧭 Overview
 
-**RadarRedactie** is a modern newsroom dashboard application for regional journalists to track local signals, scan news sources, and manage editorial priorities. Built with React, Supabase, and Vite, the tool enables efficient signal processing and lead management within a collaborative environment.
+**RedactieRadar** is a modern newsroom dashboard application for regional journalists to track local signals, scan news sources, and manage editorial priorities. Built with React, Supabase, and Vite, the tool enables efficient signal processing and lead management within a collaborative environment.
 
 ---
 

@@ -11,7 +11,7 @@ interface LayoutProps {
   badgeText?: string;
 }
 
-export const Layout = ({ children, title = "RadarRedactie", subtitle = "Omroep Tilburg", badgeText }: LayoutProps) => {
+export const Layout = ({ children, title = "RedactieRadar", subtitle = "Omroep Tilburg", badgeText }: LayoutProps) => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">

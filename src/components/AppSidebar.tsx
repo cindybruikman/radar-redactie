@@ -65,7 +65,7 @@ export function AppSidebar() {
             <span className="text-white font-bold text-sm">R</span>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">RadarRedactie</h3>
+            <h3 className="font-semibold text-gray-900">RedactieRadar</h3>
             <p className="text-xs text-gray-600">Omroep Tilburg</p>
           </div>
         </div>
